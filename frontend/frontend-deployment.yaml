@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: aks-app-frontend
+  namespace: aks-app
+  labels:
+    app: aks-app-frontend
+    component: frontend
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: aks-app-frontend
+
+  template:
+    metadata:
+      labels:
+        app: aks-app-frontend
+        component: frontend
+
+    spec:
+      containers:
+        - name: aks-app-frontend
+          image: ghcr.io/shekharsinha7325/aks-app-frontend:v1
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
